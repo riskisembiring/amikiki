@@ -1,0 +1,1633 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Debugging Feelings for Rosmita Sitepu</title>
+  <style>
+    :root {
+      --bg: #050814;
+      --bg-soft: #0b1020;
+      --terminal: #08110c;
+      --terminal-green: #5dff9b;
+      --pink: #ff7aa8;
+      --rose: #ff4d6d;
+      --cream: #fff4f8;
+      --muted: #9ea7bd;
+      --card: rgba(255, 255, 255, 0.08);
+      --card-strong: rgba(255, 255, 255, 0.13);
+      --border: rgba(255, 255, 255, 0.16);
+      --shadow: 0 24px 70px rgba(0, 0, 0, 0.38);
+      --mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      overflow-x: hidden;
+      color: var(--cream);
+      background:
+        radial-gradient(circle at 18% 22%, rgba(255, 77, 109, 0.15), transparent 26rem),
+        radial-gradient(circle at 82% 12%, rgba(93, 255, 155, 0.08), transparent 24rem),
+        linear-gradient(135deg, #040712 0%, #0b1020 46%, #170916 100%);
+      font-family: var(--sans);
+      letter-spacing: 0;
+    }
+
+    body.booting {
+      overflow: hidden;
+      background: #020604;
+    }
+
+    button {
+      border: 0;
+      font: inherit;
+      cursor: pointer;
+    }
+
+    .language-switch {
+      position: fixed;
+      top: max(16px, env(safe-area-inset-top));
+      right: max(16px, env(safe-area-inset-right));
+      z-index: 12;
+      display: none;
+      align-items: center;
+      gap: 4px;
+      padding: 5px;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 999px;
+      background: rgba(5, 8, 20, 0.72);
+      box-shadow: 0 16px 45px rgba(0, 0, 0, 0.34), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(18px);
+    }
+
+    .site.active .language-switch {
+      display: flex;
+    }
+
+    .language-switch::before {
+      content: "🌐";
+      display: grid;
+      place-items: center;
+      width: 34px;
+      height: 34px;
+      color: rgba(255, 244, 248, 0.86);
+      font-size: 0.92rem;
+    }
+
+    .lang-button {
+      min-width: 46px;
+      min-height: 34px;
+      border-radius: 999px;
+      color: rgba(255, 244, 248, 0.72);
+      background: transparent;
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      font-weight: 900;
+      transition: color 180ms ease, background 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+    }
+
+    .lang-button:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .lang-button.active {
+      color: #25040e;
+      background: linear-gradient(135deg, #ff7aa8, #ffd1df);
+      box-shadow: 0 10px 22px rgba(255, 77, 109, 0.24), inset 0 1px 0 rgba(255, 255, 255, 0.42);
+    }
+
+    .boot-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 20;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      background:
+        linear-gradient(rgba(93, 255, 155, 0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(93, 255, 155, 0.03) 1px, transparent 1px),
+        #020604;
+      background-size: 34px 34px;
+      transition: opacity 900ms ease, transform 900ms ease, visibility 900ms ease;
+    }
+
+    .boot-screen.hidden {
+      visibility: hidden;
+      opacity: 0;
+      transform: scale(1.04);
+      pointer-events: none;
+    }
+
+    .terminal {
+      width: min(780px, 100%);
+      min-height: 460px;
+      border: 1px solid rgba(93, 255, 155, 0.3);
+      border-radius: 8px;
+      overflow: hidden;
+      background: rgba(4, 16, 9, 0.86);
+      box-shadow: 0 0 0 1px rgba(93, 255, 155, 0.08), 0 30px 90px rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(18px);
+      font-family: var(--mono);
+    }
+
+    .terminal-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 16px;
+      color: rgba(255, 255, 255, 0.54);
+      background: rgba(255, 255, 255, 0.05);
+      border-bottom: 1px solid rgba(93, 255, 155, 0.18);
+      font-size: 0.82rem;
+    }
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #ff5f56;
+    }
+
+    .dot:nth-child(2) {
+      background: #ffbd2e;
+    }
+
+    .dot:nth-child(3) {
+      background: #27c93f;
+      margin-right: 8px;
+    }
+
+    .terminal-body {
+      padding: clamp(18px, 4vw, 34px);
+    }
+
+    .terminal-lines {
+      min-height: 210px;
+      color: var(--terminal-green);
+      line-height: 1.8;
+      font-size: clamp(0.92rem, 2vw, 1.05rem);
+      text-shadow: 0 0 14px rgba(93, 255, 155, 0.28);
+    }
+
+    .terminal-line::before {
+      content: "> ";
+      color: rgba(93, 255, 155, 0.62);
+    }
+
+    .cursor::after {
+      content: "█";
+      display: inline-block;
+      margin-left: 3px;
+      animation: blink 750ms steps(2) infinite;
+    }
+
+    .progress-wrap {
+      margin-top: 26px;
+    }
+
+    .progress-meta {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 9px;
+      color: rgba(255, 255, 255, 0.58);
+      font-size: 0.8rem;
+    }
+
+    .progress-track {
+      height: 12px;
+      border: 1px solid rgba(93, 255, 155, 0.34);
+      border-radius: 999px;
+      overflow: hidden;
+      background: rgba(93, 255, 155, 0.08);
+    }
+
+    .progress-fill {
+      width: 0%;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #35ff88, #c1ffd8);
+      box-shadow: 0 0 22px rgba(93, 255, 155, 0.52);
+      transition: width 160ms linear;
+    }
+
+    .execute-row {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-top: 30px;
+      padding-top: 22px;
+      border-top: 1px solid rgba(93, 255, 155, 0.16);
+      animation: fadeUp 650ms ease forwards;
+    }
+
+    .execute-row.show {
+      display: flex;
+    }
+
+    .command {
+      color: var(--terminal-green);
+      font-size: clamp(0.95rem, 2.5vw, 1.1rem);
+    }
+
+    .execute-button,
+    .primary-button,
+    .ghost-button {
+      min-height: 46px;
+      border-radius: 8px;
+      padding: 0 22px;
+      color: #06120a;
+      background: linear-gradient(135deg, var(--terminal-green), #d4ffe3);
+      box-shadow: 0 14px 30px rgba(93, 255, 155, 0.18);
+      font-weight: 800;
+      transition: transform 180ms ease, box-shadow 180ms ease, filter 180ms ease;
+    }
+
+    .execute-button:hover,
+    .primary-button:hover,
+    .ghost-button:hover {
+      transform: translateY(-2px);
+      filter: brightness(1.05);
+      box-shadow: 0 20px 42px rgba(255, 122, 168, 0.24);
+    }
+
+    .site {
+      position: relative;
+      min-height: 100vh;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 900ms ease;
+    }
+
+    .site.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .particles,
+    .stars,
+    .floating-hearts {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .particles {
+      z-index: 0;
+    }
+
+    .particle {
+      position: absolute;
+      width: 2px;
+      height: 2px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.38);
+      animation: drift linear infinite;
+    }
+
+    .floating-hearts {
+      z-index: 1;
+    }
+
+    .heart {
+      position: absolute;
+      color: rgba(255, 122, 168, 0.42);
+      font-size: 16px;
+      animation: floatHeart linear infinite;
+    }
+
+    main {
+      position: relative;
+      z-index: 2;
+    }
+
+    section {
+      width: 100%;
+      padding: clamp(70px, 10vw, 120px) 22px;
+    }
+
+    .inner {
+      width: min(1040px, 100%);
+      margin: 0 auto;
+    }
+
+    .intro {
+      min-height: 100vh;
+      display: grid;
+      align-items: center;
+      padding-top: 80px;
+    }
+
+    .kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+      color: var(--terminal-green);
+      font-family: var(--mono);
+      font-size: 0.9rem;
+    }
+
+    .kicker::before {
+      content: "";
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--terminal-green);
+      box-shadow: 0 0 18px var(--terminal-green);
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin-top: 0;
+    }
+
+    .intro h1 {
+      max-width: 880px;
+      margin-bottom: 22px;
+      font-size: clamp(2.6rem, 9vw, 6.8rem);
+      line-height: 0.96;
+    }
+
+    .intro-copy {
+      max-width: 760px;
+      min-height: 230px;
+      color: rgba(255, 244, 248, 0.82);
+      font-size: clamp(1.05rem, 2.7vw, 1.46rem);
+      line-height: 1.75;
+    }
+
+    .typed-romance strong,
+    .accent {
+      color: #ffd1df;
+      text-shadow: 0 0 28px rgba(255, 122, 168, 0.36);
+    }
+
+    .fade-up {
+      opacity: 0;
+      transform: translateY(22px);
+      transition: opacity 800ms ease, transform 800ms ease;
+    }
+
+    .fade-up.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .section-title {
+      margin-bottom: 24px;
+      color: #ffd1df;
+      font-size: clamp(1.8rem, 4vw, 3rem);
+    }
+
+    .glass-card {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: linear-gradient(145deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.045));
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+    }
+
+    .bug-card {
+      overflow: hidden;
+    }
+
+    .issue-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      padding: clamp(20px, 4vw, 32px);
+      border-bottom: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.045);
+    }
+
+    .issue-top h2 {
+      margin-bottom: 0;
+      font-size: clamp(1.2rem, 3.4vw, 2rem);
+    }
+
+    .status {
+      align-self: flex-start;
+      border: 1px solid rgba(93, 255, 155, 0.42);
+      border-radius: 999px;
+      padding: 7px 12px;
+      color: var(--terminal-green);
+      background: rgba(93, 255, 155, 0.09);
+      font-family: var(--mono);
+      font-size: 0.76rem;
+      font-weight: 800;
+    }
+
+    .issue-body {
+      padding: clamp(22px, 4vw, 34px);
+      color: rgba(255, 244, 248, 0.82);
+      line-height: 1.75;
+    }
+
+    .issue-body ul {
+      margin: 10px 0 28px;
+      padding-left: 22px;
+    }
+
+    .label {
+      display: block;
+      margin: 22px 0 8px;
+      color: #ffd1df;
+      font-family: var(--mono);
+      font-weight: 800;
+    }
+
+    .code-pill {
+      display: inline-flex;
+      border: 1px solid rgba(255, 255, 255, 0.13);
+      border-radius: 8px;
+      padding: 10px 13px;
+      background: rgba(0, 0, 0, 0.24);
+      color: var(--terminal-green);
+      font-family: var(--mono);
+    }
+
+    .commit-shell {
+      padding: clamp(20px, 4vw, 34px);
+    }
+
+    .commit-list {
+      display: grid;
+      gap: 18px;
+      margin-top: 18px;
+      font-family: var(--mono);
+    }
+
+    .commit {
+      position: relative;
+      display: grid;
+      grid-template-columns: 92px 1fr auto;
+      gap: 16px;
+      align-items: center;
+      padding: 18px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 8px;
+      background: rgba(3, 7, 18, 0.46);
+      overflow: hidden;
+    }
+
+    .commit::before {
+      content: "";
+      position: absolute;
+      left: 61px;
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      background: rgba(93, 255, 155, 0.18);
+    }
+
+    .commit-id {
+      position: relative;
+      z-index: 1;
+      color: var(--terminal-green);
+      font-weight: 800;
+    }
+
+    .commit-msg {
+      position: relative;
+      z-index: 1;
+      color: rgba(255, 244, 248, 0.82);
+    }
+
+    .deploy-badge {
+      position: relative;
+      z-index: 1;
+      border-radius: 999px;
+      padding: 7px 10px;
+      color: #25040e;
+      background: linear-gradient(135deg, #ff8cb4, #ffd1df);
+      font-size: 0.72rem;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .confession {
+      position: relative;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 50% 0%, rgba(255, 122, 168, 0.18), transparent 34rem),
+        linear-gradient(145deg, #050814 0%, #120817 54%, #250712 100%);
+    }
+
+    .stars {
+      position: absolute;
+      z-index: 0;
+    }
+
+    .star {
+      position: absolute;
+      width: 2px;
+      height: 2px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.8);
+      animation: twinkle 2.8s ease-in-out infinite;
+    }
+
+    .confession-panel {
+      position: relative;
+      z-index: 2;
+      width: min(860px, 100%);
+      padding: clamp(30px, 6vw, 64px);
+      text-align: center;
+    }
+
+    .name {
+      margin-bottom: 16px;
+      color: #ffd1df;
+      font-size: clamp(2rem, 6vw, 4.2rem);
+      line-height: 1;
+    }
+
+    .confession-panel p {
+      max-width: 680px;
+      margin-inline: auto;
+      color: rgba(255, 244, 248, 0.8);
+      font-size: clamp(1rem, 2.5vw, 1.24rem);
+      line-height: 1.8;
+    }
+
+    .like-line {
+      display: block;
+      margin: 16px 0;
+      color: #fff;
+      font-size: clamp(1.7rem, 5vw, 3.3rem);
+      text-shadow: 0 0 34px rgba(255, 122, 168, 0.44);
+    }
+
+    .question {
+      margin: 36px 0 26px;
+      color: #fff;
+      font-size: clamp(2.1rem, 8vw, 5.4rem);
+      line-height: 1.02;
+    }
+
+    .choice-zone {
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      min-height: 86px;
+    }
+
+    .primary-button {
+      min-width: 130px;
+      color: #26020e;
+      background: linear-gradient(135deg, #ff7aa8, #ffd1df);
+      box-shadow: 0 16px 38px rgba(255, 77, 109, 0.24);
+    }
+
+    .no-button {
+      min-width: 130px;
+      min-height: 46px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      color: var(--cream);
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(14px);
+      transition: transform 230ms ease, background 180ms ease, border-color 180ms ease;
+    }
+
+    .no-button:hover {
+      border-color: rgba(255, 122, 168, 0.55);
+      background: rgba(255, 122, 168, 0.12);
+    }
+
+    .tease {
+      min-height: 24px;
+      margin-top: 10px;
+      color: #ffd1df;
+      font-family: var(--mono);
+      font-size: 0.92rem;
+    }
+
+    .success-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 30;
+      display: grid;
+      place-items: center;
+      padding: 22px;
+      visibility: hidden;
+      opacity: 0;
+      isolation: isolate;
+      background:
+        linear-gradient(135deg, rgba(3, 6, 16, 0.42), rgba(44, 7, 24, 0.28)),
+        url("amikiki.JPG") center / cover no-repeat;
+      transition: opacity 500ms ease, visibility 500ms ease;
+    }
+
+    .success-screen::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      background:
+        radial-gradient(circle at 50% 16%, rgba(255, 122, 168, 0.16), transparent 24rem),
+        linear-gradient(180deg, rgba(5, 8, 20, 0.04), rgba(5, 8, 20, 0.42));
+      backdrop-filter: blur(0.5px);
+    }
+
+    .success-screen.show {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    .success-card {
+      width: min(720px, 100%);
+      padding: clamp(28px, 5vw, 52px);
+      text-align: center;
+      background: linear-gradient(145deg, rgba(9, 12, 25, 0.46), rgba(35, 13, 28, 0.34));
+      box-shadow: 0 24px 70px rgba(0, 0, 0, 0.24);
+    }
+
+    .success-card h2 {
+      margin-bottom: 18px;
+      color: var(--terminal-green);
+      font-family: var(--mono);
+      font-size: clamp(2rem, 7vw, 4.3rem);
+    }
+
+    .success-card p {
+      color: rgba(255, 244, 248, 0.86);
+      line-height: 1.7;
+    }
+
+    .status-grid {
+      display: grid;
+      gap: 10px;
+      margin: 24px auto;
+      width: min(460px, 100%);
+      text-align: left;
+      font-family: var(--mono);
+    }
+
+    .status-grid span {
+      display: block;
+      border: 1px solid rgba(93, 255, 155, 0.18);
+      border-radius: 8px;
+      padding: 12px 14px;
+      color: var(--terminal-green);
+      background: rgba(0, 0, 0, 0.24);
+    }
+
+    .ghost-button {
+      color: #26020e;
+      background: linear-gradient(135deg, #ff7aa8, #ffd1df);
+    }
+
+    .secret-message {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      z-index: 40;
+      width: min(360px, calc(100vw - 36px));
+      padding: 18px;
+      border: 1px solid rgba(93, 255, 155, 0.28);
+      border-radius: 8px;
+      color: rgba(255, 244, 248, 0.9);
+      background: rgba(4, 13, 9, 0.88);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(16px);
+      font-family: var(--mono);
+      transform: translateY(130%);
+      transition: transform 360ms ease;
+    }
+
+    .secret-message.show {
+      transform: translateY(0);
+    }
+
+    .secret-message code {
+      display: inline-block;
+      margin: 9px 0;
+      color: var(--terminal-green);
+    }
+
+    .confetti-piece {
+      position: fixed;
+      top: -20px;
+      z-index: 35;
+      pointer-events: none;
+      animation: confettiFall 3.2s ease-in forwards;
+    }
+
+    footer {
+      position: relative;
+      z-index: 2;
+      padding: 34px 22px 46px;
+      color: rgba(255, 244, 248, 0.62);
+      text-align: center;
+      background: rgba(0, 0, 0, 0.2);
+    }
+
+    footer code {
+      display: block;
+      margin-top: 10px;
+      color: #ffd1df;
+      font-family: var(--mono);
+    }
+
+    @keyframes blink {
+      50% {
+        opacity: 0;
+      }
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(14px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes drift {
+      from {
+        transform: translateY(110vh);
+      }
+      to {
+        transform: translateY(-10vh);
+      }
+    }
+
+    @keyframes floatHeart {
+      from {
+        transform: translateY(110vh) translateX(0) rotate(0deg);
+        opacity: 0;
+      }
+      12%,
+      78% {
+        opacity: 1;
+      }
+      to {
+        transform: translateY(-12vh) translateX(32px) rotate(18deg);
+        opacity: 0;
+      }
+    }
+
+    @keyframes twinkle {
+      0%,
+      100% {
+        opacity: 0.28;
+        transform: scale(0.8);
+      }
+      50% {
+        opacity: 1;
+        transform: scale(1.5);
+      }
+    }
+
+    @keyframes confettiFall {
+      to {
+        transform: translateY(110vh) rotate(720deg);
+        opacity: 0;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .terminal {
+        min-height: 420px;
+      }
+
+      .execute-row,
+      .issue-top,
+      .commit {
+        grid-template-columns: 1fr;
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .commit {
+        gap: 7px;
+      }
+
+      .commit::before {
+        left: 11px;
+      }
+
+      .commit-id,
+      .commit-msg,
+      .deploy-badge {
+        margin-left: 16px;
+      }
+
+      .choice-zone {
+        min-height: 150px;
+      }
+    }
+
+
+    @media (max-width: 560px) {
+      .boot-screen {
+        padding: 14px;
+      }
+
+      .terminal {
+        min-height: auto;
+        max-height: calc(100vh - 28px);
+      }
+
+      .terminal-bar {
+        padding: 10px 12px;
+        font-size: 0.74rem;
+      }
+
+      .terminal-body {
+        padding: 16px;
+      }
+
+      .terminal-lines {
+        min-height: 190px;
+        font-size: 0.82rem;
+        line-height: 1.65;
+      }
+
+      .execute-row {
+        gap: 12px;
+      }
+
+      .execute-button,
+      .primary-button,
+      .ghost-button,
+      .no-button {
+        width: 100%;
+        min-height: 48px;
+        padding-inline: 16px;
+      }
+
+      .language-switch {
+        top: max(10px, env(safe-area-inset-top));
+        right: 10px;
+        padding: 4px;
+        transform: scale(0.92);
+        transform-origin: top right;
+      }
+
+      .language-switch::before {
+        width: 30px;
+        height: 30px;
+        font-size: 0.82rem;
+      }
+
+      .lang-button {
+        min-width: 40px;
+        min-height: 30px;
+        font-size: 0.72rem;
+      }
+
+      section {
+        padding: 58px 16px;
+      }
+
+      .intro {
+        min-height: 92vh;
+        padding-top: 84px;
+      }
+
+      .intro h1 {
+        font-size: clamp(2.35rem, 14vw, 4.1rem);
+        line-height: 1;
+      }
+
+      .intro-copy {
+        min-height: 260px;
+        font-size: 1rem;
+        line-height: 1.68;
+      }
+
+      .section-title {
+        font-size: 1.75rem;
+      }
+
+      .issue-top,
+      .issue-body,
+      .commit-shell,
+      .confession-panel,
+      .success-card {
+        padding: 20px;
+      }
+
+      .issue-top h2 {
+        font-size: 1.08rem;
+        line-height: 1.35;
+      }
+
+      .issue-body {
+        font-size: 0.94rem;
+        line-height: 1.65;
+      }
+
+      .commit {
+        padding: 15px;
+      }
+
+      .commit-msg {
+        font-size: 0.86rem;
+        line-height: 1.45;
+      }
+
+      .deploy-badge {
+        width: fit-content;
+        white-space: normal;
+      }
+
+      .confession {
+        min-height: 100svh;
+      }
+
+      .name {
+        font-size: clamp(2rem, 12vw, 3.2rem);
+      }
+
+      .confession-panel p {
+        font-size: 0.98rem;
+        line-height: 1.65;
+      }
+
+      .like-line {
+        font-size: clamp(1.8rem, 11vw, 2.8rem);
+      }
+
+      .question {
+        margin: 28px 0 22px;
+        font-size: clamp(2rem, 12vw, 3.6rem);
+        line-height: 1.08;
+      }
+
+      .choice-zone {
+        display: grid;
+        grid-template-columns: 1fr;
+        min-height: 128px;
+        gap: 12px;
+      }
+
+      .tease {
+        font-size: 0.82rem;
+      }
+
+      .success-screen {
+        padding: 14px;
+        background-position: center top;
+      }
+
+      .success-screen::before {
+        backdrop-filter: blur(1px);
+        background:
+          radial-gradient(circle at 50% 12%, rgba(255, 122, 168, 0.22), transparent 18rem),
+          linear-gradient(180deg, rgba(5, 8, 20, 0.28), rgba(5, 8, 20, 0.84));
+      }
+
+      .success-card h2 {
+        font-size: 2.3rem;
+      }
+
+      .status-grid span {
+        padding: 11px 12px;
+        font-size: 0.82rem;
+      }
+
+      footer {
+        padding-inline: 16px;
+        font-size: 0.88rem;
+      }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 1ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 1ms !important;
+      }
+    }
+  </style>
+</head>
+<body class="booting">
+  <div class="boot-screen" id="bootScreen" aria-label="Opening terminal screen">
+    <div class="terminal">
+      <div class="terminal-bar">
+        <span class="dot"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+        <span>feelings-debugger.sh</span>
+      </div>
+      <div class="terminal-body">
+        <div class="terminal-lines" id="terminalLines"></div>
+        <div class="progress-wrap">
+          <div class="progress-meta">
+            <span id="scanLabel">Pemindaian hati</span>
+            <span id="progressValue">0%</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill" id="progressFill"></div>
+          </div>
+        </div>
+        <div class="execute-row" id="executeRow">
+          <span class="command">sudo open --heart</span>
+          <button class="execute-button" id="executeButton" type="button">[ Eksekusi ]</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="site" id="site">
+    <div class="language-switch" aria-label="Language switch">
+      <button class="lang-button active" data-lang="id" type="button" aria-pressed="true">ID</button>
+      <button class="lang-button" data-lang="en" type="button" aria-pressed="false">EN</button>
+    </div>
+    <div class="particles" id="particles"></div>
+    <div class="floating-hearts" id="floatingHearts"></div>
+
+    <main>
+      <section class="intro" id="intro">
+        <div class="inner">
+          <span class="kicker fade-up" data-i18n="kicker">debug.log / perasaan</span>
+          <h1 class="fade-up">Hallow, Rosmita 👋</h1>
+          <div class="intro-copy typed-romance fade-up" id="romanceText"></div>
+        </div>
+      </section>
+
+      <section>
+        <div class="inner">
+          <h2 class="section-title fade-up" data-i18n="bugSection">Laporan Bug</h2>
+          <article class="bug-card glass-card fade-up">
+            <div class="issue-top">
+              <h2>BUG #404 — Unable to Stop Thinking About Rosmita</h2>
+              <span class="status" data-i18n="statusOpen">TERBUKA</span>
+            </div>
+            <div class="issue-body">
+              <strong data-i18n="descriptionLabel">Deskripsi:</strong>
+              <ul>
+                <li data-i18n="bug1">Detak jantung meningkat saat Rosmita muncul.</li>
+                <li data-i18n="bug2">Smile.exe otomatis berjalan saat menerima pesannya.</li>
+                <li data-i18n="bug3">Brain.exe sering crash saat mencoba bersikap normal di dekatnya.</li>
+                <li data-i18n="bug4">Masalah ini terus terjadi setiap hari.</li>
+              </ul>
+
+              <span class="label" data-i18n="expectedLabel">Expected behavior:</span>
+              <span class="code-pill" data-i18n="expectedValue">Bersikap normal.</span>
+
+              <span class="label" data-i18n="actualLabel">Actual behavior:</span>
+              <span class="code-pill">Falling for Rosmita. ❤️</span>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section>
+        <div class="inner">
+          <h2 class="section-title fade-up" data-i18n="commitSection">Riwayat Git Commit</h2>
+          <div class="commit-shell glass-card fade-up">
+            <div class="commit-list">
+              <div class="commit">
+                <span class="commit-id">commit 01</span>
+                <span class="commit-msg">feat: mulai memperhatikan Rosmita</span>
+              </div>
+              <div class="commit">
+                <span class="commit-id">commit 02</span>
+                <span class="commit-msg">feat: mulai memikirkan Rosmita</span>
+              </div>
+              <div class="commit">
+                <span class="commit-id">commit 03</span>
+                <span class="commit-msg">fix: mencoba berhenti menyukainya</span>
+              </div>
+              <div class="commit">
+                <span class="commit-id">commit 04</span>
+                <span class="commit-msg">revert: gagal total</span>
+              </div>
+              <div class="commit">
+                <span class="commit-id">commit 05</span>
+                <span class="commit-msg">feat: akhirnya menyatakan perasaan</span>
+                <span class="deploy-badge">READY TO DEPLOY ❤️</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="confession" id="confession">
+        <div class="stars" id="stars"></div>
+        <div class="confession-panel glass-card fade-up">
+          <h2 class="name">Rosmita Sitepu</h2>
+          <p>
+            Setelah hitungan yang tidak ada habisnya,<br />
+            beberapa percobaan debugging yang gagal,<br />
+            dan tanpa penjelasan logis sama sekali...
+          </p>
+          <p data-i18n="conclusionIntro">Aku sampai pada satu kesimpulan:</p>
+          <strong class="like-line" data-i18n="likeLine">Aku suka kamu.</strong>
+          <p data-i18n="questionIntro">Jadi aku punya satu pertanyaan penting...</p>
+          <h1 class="question">“Will you be my girlfriend?”</h1>
+          <div class="choice-zone" id="choiceZone">
+            <button class="primary-button" id="yesButton" type="button">💗 YES</button>
+            <button class="no-button" id="noButton" type="button">😏 NO</button>
+          </div>
+          <div class="tease" id="teaseText" aria-live="polite"></div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <code>© 2026 — Made specifically for Rosmita Sitepu ❤️</code>
+    </footer>
+  </div>
+
+  <div class="success-screen" id="successScreen" aria-live="polite">
+    <div class="success-card glass-card">
+      <h2 data-i18n="successTitle">BERHASIL!</h2>
+      <p>
+        Relationship request accepted. ❤️<br />
+        Selamat datang, Rosmita.
+      </p>
+      <p><strong>Kamu resmi menjadi rumah paling hangat untuk hatiku.</strong></p>
+      <p data-i18n="systemStatus">Status sistem:</p>
+      <div class="status-grid">
+        <span>❤️ HEART: HAPPY</span>
+        <span>🧠 BRAIN: CONFUSED</span>
+        <span>💻 DEVELOPER: VERY HAPPY</span>
+        <span>🚀 RELATIONSHIP: DEPLOYED</span>
+      </div>
+      <button class="ghost-button" id="restartButton" type="button">[ Restart Sistem ]</button>
+    </div>
+  </div>
+
+  <div class="secret-message" id="secretMessage">
+    <div>Kamu menemukan secret command.</div>
+    <code>sudo access my heart</code>
+    <div>Permission granted. ❤️</div>
+  </div>
+
+  <script>
+    const i18n = {
+      id: {
+        scanLabel: "Pemindaian hati",
+        executeButton: "[ Eksekusi ]",
+        bootLines: [
+          "Menginisialisasi sistem...",
+          "Memuat kenangan...",
+          "Memindai hati...",
+          "Mencari orang yang tepat...",
+          "Orang ditemukan: Rosmita Sitepu \u2764\uFE0F",
+          "Status: Perasaan terdeteksi."
+        ],
+        romanceLines: [
+          "Aku punya sesuatu untuk disampaikan...",
+          "",
+          "Aku sudah mencoba debug perasaan ini.",
+          "Aku sudah mencoba mengabaikannya.",
+          "Aku bahkan sudah mencoba restart otakku.",
+          "",
+          "Tapi sayangnya...",
+          "",
+          "<strong>Kamu tetap berjalan di pikiranku.</strong>"
+        ],
+        teaseMessages: [
+          "Yakin nih? \uD83E\uDD7A",
+          "Pikir lagi, Rosmita \uD83D\uDE2D",
+          "Sistem merekomendasikan YES.",
+          "404: Alasan bagus tidak ditemukan.",
+          "Mungkin kasih aku kesempatan? \uD83D\uDE0C"
+        ],
+        text: {
+          kicker: "debug.log / perasaan",
+          introTitle: "Halo, Rosmita \uD83D\uDC4B",
+          bugSection: "Laporan Bug",
+          bugTitle: "BUG #404 — Tidak Bisa Berhenti Memikirkan Rosmita",
+          statusOpen: "TERBUKA",
+          descriptionLabel: "Deskripsi:",
+          bug1: "Detak jantung meningkat saat Rosmita muncul.",
+          bug2: "Smile.exe otomatis berjalan saat menerima pesannya.",
+          bug3: "Brain.exe sering crash saat mencoba bersikap normal di dekatnya.",
+          bug4: "Masalah ini terus terjadi setiap hari.",
+          expectedLabel: "Expected behavior:",
+          expectedValue: "Bersikap normal.",
+          actualLabel: "Actual behavior:",
+          actualValue: "Jatuh hati kepada Rosmita. \u2764\uFE0F",
+          commitSection: "Riwayat Git Commit",
+          deployBadge: "SIAP DI-DEPLOY \u2764\uFE0F",
+          conclusionIntro: "Aku sampai pada satu kesimpulan:",
+          likeLine: "Aku suka kamu.",
+          questionIntro: "Jadi aku punya satu pertanyaan penting...",
+          question: "“Maukah kamu jadi pacarku?”",
+          yes: "\uD83D\uDC97 YES",
+          no: "\uD83D\uDE0F TIDAK",
+          noForcedYes: "Okay fine, YES \uD83D\uDE2D\u2764\uFE0F",
+          footerCode: "© 2026 — Dibuat khusus untuk Rosmita Sitepu \u2764\uFE0F",
+          successTitle: "BERHASIL!",
+          successBody: "Permintaan hatiku diterima. \u2764\uFE0F<br />Selamat datang di ruang paling spesial di hidupku, Rosmita.",
+          favorite: "Kamu resmi menjadi rumah paling hangat untuk hatiku.",
+          systemStatus: "Status sistem:",
+          restart: "[ Restart Sistem ]",
+          secretTop: "Kamu menemukan secret command.",
+          secretBottom: "Izin diberikan. \u2764\uFE0F"
+        },
+        commits: [
+          "feat: mulai memperhatikan Rosmita",
+          "feat: mulai memikirkan Rosmita",
+          "fix: mencoba berhenti menyukainya",
+          "revert: gagal total",
+          "feat: akhirnya menyatakan perasaan"
+        ],
+        statusRows: [
+          "\u2764\uFE0F HEART: BAHAGIA",
+          "\uD83E\uDDE0 BRAIN: BINGUNG",
+          "\uD83D\uDCBB DEVELOPER: SANGAT BAHAGIA",
+          "\uD83D\uDE80 RELATIONSHIP: TER-DEPLOY"
+        ]
+      },
+      en: {
+        scanLabel: "Heart scan",
+        executeButton: "[ Execute ]",
+        bootLines: [
+          "Initializing system...",
+          "Loading memories...",
+          "Scanning heart...",
+          "Searching for the right person...",
+          "Person found: Rosmita Sitepu \u2764\uFE0F",
+          "Status: Feelings detected."
+        ],
+        romanceLines: [
+          "I have something to tell you...",
+          "",
+          "I've tried to debug this feeling.",
+          "I've tried to ignore it.",
+          "I've even tried restarting my brain.",
+          "",
+          "But unfortunately...",
+          "",
+          "<strong>You keep running in my mind.</strong>"
+        ],
+        teaseMessages: [
+          "Are you sure? \uD83E\uDD7A",
+          "Think again, Rosmita \uD83D\uDE2D",
+          "System recommends YES.",
+          "404: Good reason not found.",
+          "Maybe give me a chance? \uD83D\uDE0C"
+        ],
+        text: {
+          kicker: "debug.log / feelings",
+          introTitle: "Hello, Rosmita \uD83D\uDC4B",
+          bugSection: "Bug Report",
+          bugTitle: "BUG #404 — Unable to Stop Thinking About Rosmita",
+          statusOpen: "OPEN",
+          descriptionLabel: "Description:",
+          bug1: "Heart rate increases when Rosmita appears.",
+          bug2: "Smile.exe automatically runs when receiving her message.",
+          bug3: "Brain.exe frequently crashes when trying to act normal around her.",
+          bug4: "The problem persists every day.",
+          expectedLabel: "Expected behavior:",
+          expectedValue: "Act normal.",
+          actualLabel: "Actual behavior:",
+          actualValue: "Falling for Rosmita. \u2764\uFE0F",
+          commitSection: "Git Commit History",
+          deployBadge: "READY TO DEPLOY \u2764\uFE0F",
+          conclusionIntro: "I came to one conclusion:",
+          likeLine: "I like you.",
+          questionIntro: "So I have one important question...",
+          question: "“Will you be my girlfriend?”",
+          yes: "\uD83D\uDC97 YES",
+          no: "\uD83D\uDE0F NO",
+          noForcedYes: "Okay fine, YES \uD83D\uDE2D\u2764\uFE0F",
+          footerCode: "© 2026 — Made specifically for Rosmita Sitepu \u2764\uFE0F",
+          successTitle: "SUCCESS!",
+          successBody: "My heart request has been accepted. \u2764\uFE0F<br />Welcome to the most special place in my life, Rosmita.",
+          favorite: "You are officially the softest home for my heart.",
+          systemStatus: "System status:",
+          restart: "[ Restart System ]",
+          secretTop: "You found the secret command.",
+          secretBottom: "Permission granted. \u2764\uFE0F"
+        },
+        commits: [
+          "feat: noticed Rosmita",
+          "feat: started thinking about Rosmita",
+          "fix: tried to stop liking her",
+          "revert: failed miserably",
+          "feat: finally confessing"
+        ],
+        statusRows: [
+          "\u2764\uFE0F HEART: HAPPY",
+          "\uD83E\uDDE0 BRAIN: CONFUSED",
+          "\uD83D\uDCBB DEVELOPER: VERY HAPPY",
+          "\uD83D\uDE80 RELATIONSHIP: DEPLOYED"
+        ]
+      }
+    };
+
+    let currentLang = "id";
+    let bootLines = i18n[currentLang].bootLines;
+    let romanceLines = i18n[currentLang].romanceLines;
+    let teaseMessages = i18n[currentLang].teaseMessages;
+
+    const terminalLines = document.getElementById("terminalLines");
+    const scanLabel = document.getElementById("scanLabel");
+    const langButtons = document.querySelectorAll(".lang-button");
+    const progressFill = document.getElementById("progressFill");
+    const progressValue = document.getElementById("progressValue");
+    const executeRow = document.getElementById("executeRow");
+    const executeButton = document.getElementById("executeButton");
+    const bootScreen = document.getElementById("bootScreen");
+    const site = document.getElementById("site");
+    const romanceText = document.getElementById("romanceText");
+    const noButton = document.getElementById("noButton");
+    const yesButton = document.getElementById("yesButton");
+    const teaseText = document.getElementById("teaseText");
+    const choiceZone = document.getElementById("choiceZone");
+    const successScreen = document.getElementById("successScreen");
+    const restartButton = document.getElementById("restartButton");
+    const secretMessage = document.getElementById("secretMessage");
+    const particles = document.getElementById("particles");
+    const floatingHearts = document.getElementById("floatingHearts");
+    const stars = document.getElementById("stars");
+
+    let progress = 0;
+    let noHoverCount = 0;
+    let typedBuffer = "";
+    let typingRunId = 0;
+    let secretBuffer = "";
+
+    const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+    function setText(selector, value) {
+      const element = document.querySelector(selector);
+      if (element) element.innerHTML = value;
+    }
+
+    function applyLanguage(lang) {
+      currentLang = lang;
+      bootLines = i18n[lang].bootLines;
+      romanceLines = i18n[lang].romanceLines;
+      teaseMessages = i18n[lang].teaseMessages;
+      const copy = i18n[lang].text;
+
+      document.documentElement.lang = lang;
+      scanLabel.textContent = i18n[lang].scanLabel;
+      executeButton.textContent = i18n[lang].executeButton;
+      setText('[data-i18n="kicker"]', copy.kicker);
+      setText('[data-i18n="introTitle"]', copy.introTitle);
+      setText('[data-i18n="bugSection"]', copy.bugSection);
+      setText('.issue-top h2', copy.bugTitle);
+      setText('[data-i18n="statusOpen"]', copy.statusOpen);
+      setText('[data-i18n="descriptionLabel"]', copy.descriptionLabel);
+      setText('[data-i18n="bug1"]', copy.bug1);
+      setText('[data-i18n="bug2"]', copy.bug2);
+      setText('[data-i18n="bug3"]', copy.bug3);
+      setText('[data-i18n="bug4"]', copy.bug4);
+      setText('[data-i18n="expectedLabel"]', copy.expectedLabel);
+      setText('[data-i18n="expectedValue"]', copy.expectedValue);
+      setText('[data-i18n="actualLabel"]', copy.actualLabel);
+      setText('[data-i18n="actualValue"]', copy.actualValue);
+      setText('[data-i18n="commitSection"]', copy.commitSection);
+      setText('.deploy-badge', copy.deployBadge);
+      setText('[data-i18n="conclusionIntro"]', copy.conclusionIntro);
+      setText('[data-i18n="likeLine"]', copy.likeLine);
+      setText('[data-i18n="questionIntro"]', copy.questionIntro);
+      setText('.question', copy.question);
+      yesButton.textContent = copy.yes;
+      noButton.textContent = noHoverCount >= 6 ? copy.noForcedYes : copy.no;
+      setText('footer code', copy.footerCode);
+      setText('[data-i18n="successTitle"]', copy.successTitle);
+      setText('.success-card p:nth-of-type(1)', copy.successBody);
+      setText('.success-card p:nth-of-type(2) strong', copy.favorite);
+      setText('[data-i18n="systemStatus"]', copy.systemStatus);
+      restartButton.textContent = copy.restart;
+      setText('#secretMessage div:first-child', copy.secretTop);
+      setText('#secretMessage div:last-child', copy.secretBottom);
+
+      document.querySelectorAll('.commit-msg').forEach((element, index) => {
+        element.textContent = i18n[lang].commits[index];
+      });
+      document.querySelectorAll('.status-grid span').forEach((element, index) => {
+        element.textContent = i18n[lang].statusRows[index];
+      });
+      langButtons.forEach((button) => {
+        const isActive = button.dataset.lang === lang;
+        button.classList.toggle('active', isActive);
+        button.setAttribute('aria-pressed', String(isActive));
+      });
+
+      if (site.classList.contains('active')) {
+        startRomanceTyping(true);
+      }
+    }
+
+    async function typeTerminalLine(text) {
+      const line = document.createElement("div");
+      line.className = "terminal-line cursor";
+      terminalLines.appendChild(line);
+
+      for (const char of text) {
+        line.textContent += char;
+        await wait(24 + Math.random() * 22);
+      }
+
+      line.classList.remove("cursor");
+    }
+
+    async function bootSequence() {
+      for (const line of bootLines) {
+        await typeTerminalLine(line);
+        await wait(240);
+      }
+
+      const timer = setInterval(() => {
+        progress += Math.ceil(Math.random() * 4);
+        if (progress >= 100) {
+          progress = 100;
+          clearInterval(timer);
+          executeRow.classList.add("show");
+        }
+        progressFill.style.width = `${progress}%`;
+        progressValue.textContent = `${progress}%`;
+      }, 70);
+    }
+
+    function revealSite() {
+      bootScreen.classList.add("hidden");
+      document.body.classList.remove("booting");
+      site.classList.add("active");
+      setTimeout(() => {
+        document.getElementById("intro").scrollIntoView({ behavior: "smooth" });
+        startRomanceTyping();
+      }, 400);
+    }
+
+    async function startRomanceTyping(forceRestart = false) {
+      if (typedBuffer && !forceRestart) return;
+
+      const runId = typingRunId + 1;
+      typingRunId = runId;
+      typedBuffer = "";
+      romanceText.innerHTML = "";
+      const lines = [...romanceLines];
+
+      for (const line of lines) {
+        if (runId !== typingRunId) return;
+
+        if (!line) {
+          typedBuffer += "<br />";
+          romanceText.innerHTML = typedBuffer;
+          await wait(280);
+          continue;
+        }
+
+        if (line.startsWith("<strong>")) {
+          const clean = line.replace("<strong>", "").replace("</strong>", "");
+          typedBuffer += "<strong>";
+          for (const char of clean) {
+            if (runId !== typingRunId) return;
+            typedBuffer += char;
+            romanceText.innerHTML = typedBuffer + '<span class="cursor"></span>';
+            await wait(42);
+          }
+          typedBuffer += "</strong><br />";
+        } else {
+          for (const char of line) {
+            if (runId !== typingRunId) return;
+            typedBuffer += char;
+            romanceText.innerHTML = typedBuffer + '<span class="cursor"></span>';
+            await wait(31);
+          }
+          typedBuffer += "<br />";
+        }
+        romanceText.innerHTML = typedBuffer;
+        await wait(260);
+      }
+    }
+
+    function buildAmbientElements() {
+      for (let index = 0; index < 58; index += 1) {
+        const particle = document.createElement("span");
+        particle.className = "particle";
+        particle.style.left = `${Math.random() * 100}%`;
+        particle.style.animationDuration = `${10 + Math.random() * 18}s`;
+        particle.style.animationDelay = `${Math.random() * -18}s`;
+        particles.appendChild(particle);
+      }
+
+      for (let index = 0; index < 16; index += 1) {
+        const heart = document.createElement("span");
+        heart.className = "heart";
+        heart.textContent = "\u2665";
+        heart.style.left = `${Math.random() * 100}%`;
+        heart.style.fontSize = `${12 + Math.random() * 16}px`;
+        heart.style.animationDuration = `${12 + Math.random() * 14}s`;
+        heart.style.animationDelay = `${Math.random() * -18}s`;
+        floatingHearts.appendChild(heart);
+      }
+
+      for (let index = 0; index < 88; index += 1) {
+        const star = document.createElement("span");
+        star.className = "star";
+        star.style.left = `${Math.random() * 100}%`;
+        star.style.top = `${Math.random() * 100}%`;
+        star.style.animationDelay = `${Math.random() * 3}s`;
+        stars.appendChild(star);
+      }
+    }
+
+    function observeFadeElements() {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("visible");
+          }
+        });
+      }, { threshold: 0.18 });
+
+      document.querySelectorAll(".fade-up").forEach((element) => observer.observe(element));
+    }
+
+    function nudgeNoButton() {
+      noHoverCount += 1;
+      const message = teaseMessages[(noHoverCount - 1) % teaseMessages.length];
+      teaseText.textContent = message;
+
+      const maxShift = Math.min(90, choiceZone.offsetWidth * 0.18);
+      const x = (Math.random() > 0.5 ? 1 : -1) * (26 + Math.random() * maxShift);
+      const y = (Math.random() > 0.5 ? 1 : -1) * (8 + Math.random() * 16);
+      noButton.style.transform = `translate(${x}px, ${y}px) rotate(${Math.random() * 5 - 2.5}deg)`;
+
+      if (noHoverCount >= 6) {
+        noButton.textContent = "Okay fine, YES 😭❤️";
+        noButton.classList.add("primary-button");
+        noButton.onclick = celebrate;
+      }
+    }
+
+    function celebrate() {
+      successScreen.classList.add("show");
+      teaseText.textContent = "";
+      createConfetti();
+    }
+
+    function createConfetti() {
+      const symbols = ["\u2764\uFE0F", "\uD83D\uDC97", "\u2728", "\uD83D\uDC95"];
+      for (let index = 0; index < 90; index += 1) {
+        const piece = document.createElement("span");
+        piece.className = "confetti-piece";
+        piece.textContent = symbols[index % symbols.length];
+        piece.style.left = `${Math.random() * 100}%`;
+        piece.style.fontSize = `${14 + Math.random() * 18}px`;
+        piece.style.animationDelay = `${Math.random() * 0.75}s`;
+        piece.style.transform = `translateY(0) rotate(${Math.random() * 120}deg)`;
+        document.body.appendChild(piece);
+        setTimeout(() => piece.remove(), 3700);
+      }
+    }
+
+    function restartSystem() {
+      window.location.reload();
+    }
+
+    function handleSecretCommand(event) {
+      if (event.key.length !== 1) return;
+      secretBuffer = (secretBuffer + event.key.toLowerCase()).slice(-7);
+      if (secretBuffer === "rosmita") {
+        secretMessage.classList.add("show");
+        setTimeout(() => secretMessage.classList.remove("show"), 5200);
+      }
+    }
+
+    langButtons.forEach((button) => button.addEventListener("click", () => applyLanguage(button.dataset.lang)));
+    executeButton.addEventListener("click", revealSite);
+    yesButton.addEventListener("click", celebrate);
+    noButton.addEventListener("mouseenter", nudgeNoButton);
+    noButton.addEventListener("focus", nudgeNoButton);
+    noButton.addEventListener("click", nudgeNoButton);
+    restartButton.addEventListener("click", restartSystem);
+    window.addEventListener("keydown", handleSecretCommand);
+
+    applyLanguage("id");
+    buildAmbientElements();
+    observeFadeElements();
+    bootSequence();
+  </script>
+</body>
+</html>
