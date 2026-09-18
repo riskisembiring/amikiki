@@ -1,9 +1,9 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Debugging Feelings for Rosmita Sitepu</title>
+  <title>Debugging Feelings for Rosmita Br. Sitepu</title>
   <style>
     :root {
       --bg: #050814;
@@ -1070,7 +1070,7 @@
       <section class="intro" id="intro">
         <div class="inner">
           <span class="kicker fade-up" data-i18n="kicker">debug.log / perasaan</span>
-          <h1 class="fade-up">Hallow, Rosmita 👋</h1>
+          <h1 class="fade-up">Hallow, Rosmita Br. Sitepu👋</h1>
           <div class="intro-copy typed-romance fade-up" id="romanceText"></div>
         </div>
       </section>
@@ -1136,7 +1136,7 @@
       <section class="confession" id="confession">
         <div class="stars" id="stars"></div>
         <div class="confession-panel glass-card fade-up">
-          <h2 class="name">Rosmita Sitepu</h2>
+          <h2 class="name">Rosmita Br. Sitepu</h2>
           <p>
             Setelah hitungan yang tidak ada habisnya,<br />
             beberapa percobaan debugging yang gagal,<br />
@@ -1156,7 +1156,7 @@
     </main>
 
     <footer>
-      <code>© 2026 — Made specifically for Rosmita Sitepu ❤️</code>
+      <code>© 2026 — Made specifically for Rosmita Br. Sitepu ❤️</code>
     </footer>
   </div>
 
@@ -1165,7 +1165,7 @@
       <h2 data-i18n="successTitle">BERHASIL!</h2>
       <p>
         Relationship request accepted. ❤️<br />
-        Selamat datang, Rosmita.
+        Selamat datang, Rosmita Br. Sitepu.
       </p>
       <p><strong>Kamu resmi menjadi rumah paling hangat untuk hatiku.</strong></p>
       <p data-i18n="systemStatus">Status sistem:</p>
@@ -1195,7 +1195,7 @@
           "Memuat kenangan...",
           "Memindai hati...",
           "Mencari orang yang tepat...",
-          "Orang ditemukan: Rosmita Sitepu \u2764\uFE0F",
+          "Orang ditemukan: Rosmita Br. Sitepu \u2764\uFE0F",
           "Status: Perasaan terdeteksi."
         ],
         romanceLines: [
@@ -1218,7 +1218,7 @@
         ],
         text: {
           kicker: "debug.log / perasaan",
-          introTitle: "Halo, Rosmita \uD83D\uDC4B",
+          introTitle: "Halo, Rosmita Br. Sitepu\uD83D\uDC4B",
           bugSection: "Laporan Bug",
           bugTitle: "BUG #404 — Tidak Bisa Berhenti Memikirkan Rosmita",
           statusOpen: "TERBUKA",
@@ -1240,7 +1240,7 @@
           yes: "\uD83D\uDC97 YES",
           no: "\uD83D\uDE0F TIDAK",
           noForcedYes: "Okay fine, YES \uD83D\uDE2D\u2764\uFE0F",
-          footerCode: "© 2026 — Dibuat khusus untuk Rosmita Sitepu \u2764\uFE0F",
+          footerCode: "© 2026 — Dibuat khusus untuk Rosmita Br. Sitepu \u2764\uFE0F",
           successTitle: "BERHASIL!",
           successBody: "Permintaan hatiku diterima. \u2764\uFE0F<br />Selamat datang di ruang paling spesial di hidupku, Rosmita.",
           favorite: "Kamu resmi menjadi rumah paling hangat untuk hatiku.",
@@ -1271,7 +1271,7 @@
           "Loading memories...",
           "Scanning heart...",
           "Searching for the right person...",
-          "Person found: Rosmita Sitepu \u2764\uFE0F",
+          "Person found: Rosmita Br. Sitepu \u2764\uFE0F",
           "Status: Feelings detected."
         ],
         romanceLines: [
@@ -1294,7 +1294,7 @@
         ],
         text: {
           kicker: "debug.log / feelings",
-          introTitle: "Hello, Rosmita \uD83D\uDC4B",
+          introTitle: "Hello, Rosmita Br. Rosmita \uD83D\uDC4B",
           bugSection: "Bug Report",
           bugTitle: "BUG #404 — Unable to Stop Thinking About Rosmita",
           statusOpen: "OPEN",
@@ -1316,7 +1316,7 @@
           yes: "\uD83D\uDC97 YES",
           no: "\uD83D\uDE0F NO",
           noForcedYes: "Okay fine, YES \uD83D\uDE2D\u2764\uFE0F",
-          footerCode: "© 2026 — Made specifically for Rosmita Sitepu \u2764\uFE0F",
+          footerCode: "© 2026 — Made specifically for Rosmita Br. Sitepu \u2764\uFE0F",
           successTitle: "SUCCESS!",
           successBody: "My heart request has been accepted. \u2764\uFE0F<br />Welcome to the most special place in my life, Rosmita.",
           favorite: "You are officially the softest home for my heart.",
@@ -1372,6 +1372,7 @@
     let typedBuffer = "";
     let typingRunId = 0;
     let secretBuffer = "";
+    const acceptanceStorageKey = "rosmitaRelationshipAccepted";
 
     const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
     function setText(selector, value) {
@@ -1564,6 +1565,71 @@
       document.querySelectorAll(".fade-up").forEach((element) => observer.observe(element));
     }
 
+    function saveAcceptance() {
+      const acceptedData = {
+        accepted: true,
+        acceptedAt: new Date().toISOString(),
+        language: currentLang
+      };
+
+      localStorage.setItem(acceptanceStorageKey, JSON.stringify(acceptedData));
+      return acceptedData;
+    }
+
+    async function saveAcceptanceToProject(acceptedData) {
+      try {
+        await fetch("/accept", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(acceptedData)
+        });
+      } catch (error) {
+        console.info("Acceptance saved locally only. Run server.js to save accepted.json.");
+      }
+    }
+
+    function getLocalAcceptance() {
+      try {
+        return JSON.parse(localStorage.getItem(acceptanceStorageKey));
+      } catch (error) {
+        localStorage.removeItem(acceptanceStorageKey);
+        return null;
+      }
+    }
+
+    function restoreAcceptance(savedData = getLocalAcceptance()) {
+      if (!savedData || !savedData.accepted) return false;
+
+      localStorage.setItem(acceptanceStorageKey, JSON.stringify(savedData));
+      bootScreen.classList.add("hidden");
+      document.body.classList.remove("booting");
+      site.classList.add("active");
+      successScreen.classList.add("show");
+      return true;
+    }
+
+    async function fetchProjectAcceptance() {
+      const response = await fetch("/accepted.json", { cache: "no-store" });
+      if (!response.ok) throw new Error("Acceptance data unavailable");
+      return response.json();
+    }
+
+    async function initializeAcceptanceState() {
+      try {
+        const projectData = await fetchProjectAcceptance();
+        if (restoreAcceptance(projectData)) return;
+
+        localStorage.removeItem(acceptanceStorageKey);
+        bootSequence();
+      } catch (error) {
+        if (!restoreAcceptance()) {
+          bootSequence();
+        }
+      }
+    }
+
     function nudgeNoButton() {
       noHoverCount += 1;
       const message = teaseMessages[(noHoverCount - 1) % teaseMessages.length];
@@ -1582,6 +1648,8 @@
     }
 
     function celebrate() {
+      const acceptedData = saveAcceptance();
+      saveAcceptanceToProject(acceptedData);
       successScreen.classList.add("show");
       teaseText.textContent = "";
       createConfetti();
@@ -1602,8 +1670,49 @@
       }
     }
 
-    function restartSystem() {
-      window.location.reload();
+    function resetUiToBoot() {
+      progress = 0;
+      noHoverCount = 0;
+      typedBuffer = "";
+      typingRunId += 1;
+      terminalLines.innerHTML = "";
+      romanceText.innerHTML = "";
+      teaseText.textContent = "";
+      progressFill.style.width = "0%";
+      progressValue.textContent = "0%";
+      executeRow.classList.remove("show");
+      successScreen.classList.remove("show");
+      site.classList.remove("active");
+      bootScreen.classList.remove("hidden");
+      document.body.classList.add("booting");
+      noButton.classList.remove("primary-button");
+      noButton.textContent = i18n[currentLang].text.no;
+      noButton.style.transform = "";
+      noButton.onclick = null;
+    }
+
+    async function resetAcceptanceData() {
+      localStorage.removeItem(acceptanceStorageKey);
+
+      const response = await fetch("/reset", {
+        method: "POST",
+        cache: "no-store"
+      });
+
+      if (!response.ok) {
+        throw new Error("Project reset failed");
+      }
+    }
+
+    async function restartSystem() {
+      try {
+        await resetAcceptanceData();
+      } catch (error) {
+        console.info("Acceptance reset locally only. Restart server.js, then try again.");
+      }
+
+      resetUiToBoot();
+      bootSequence();
     }
 
     function handleSecretCommand(event) {
@@ -1627,7 +1736,7 @@
     applyLanguage("id");
     buildAmbientElements();
     observeFadeElements();
-    bootSequence();
+    initializeAcceptanceState();
   </script>
 </body>
 </html>
